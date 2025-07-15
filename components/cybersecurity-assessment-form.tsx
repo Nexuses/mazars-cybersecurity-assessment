@@ -80,7 +80,8 @@ export const getResultText = (score: number, language: Language = 'en') => {
 
 export function CybersecurityAssessmentForm() {
   const [personalInfo, setPersonalInfo] = useState({
-    nameAndDate: "",
+    name: "",
+    date: "",
     role: "",
     environmentType: "",
     environmentSize: "",
@@ -105,7 +106,8 @@ export function CybersecurityAssessmentForm() {
   const t = translations[currentLanguage];
 
   const formSchema = z.object({
-    nameAndDate: z.string().min(2, { message: "Please enter your name and the date." }),
+    name: z.string().min(2, { message: "Please enter your name." }),
+    date: z.string().min(2, { message: "Please enter the date." }),
     role: z.string().min(2, { message: "Please select your role or job title." }),
     environmentType: z.string().min(2, { message: "Please specify the type of environment." }),
     environmentSize: z.string().min(1, { message: "Please specify the size of the environment." }),
@@ -120,7 +122,8 @@ export function CybersecurityAssessmentForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      nameAndDate: "",
+      name: "",
+      date: "",
       role: "",
       environmentType: "",
       environmentSize: "",
@@ -131,12 +134,9 @@ export function CybersecurityAssessmentForm() {
       country: "",
       email: "",
     },
-    mode: "onSubmit"
+    mode: "onSubmit",
+    reValidateMode: "onSubmit"
   });
-
-  useEffect(() => {
-    form.trigger(); // Re-validate form with new language
-  }, [currentLanguage, form]);
 
   const handlePersonalInfoSubmit = (values: z.infer<typeof formSchema>) => {
     setPersonalInfo(values);
@@ -300,7 +300,7 @@ export function CybersecurityAssessmentForm() {
                       <CardTitle className="text-xl sm:text-2xl text-white">
                         Organisational and Environmental Information
                       </CardTitle>
-                      <CardDescription>
+                      <CardDescription className="text-white">
                         Please provide the following details:
                       </CardDescription>
                     </CardHeader>
@@ -311,21 +311,38 @@ export function CybersecurityAssessmentForm() {
                           className="space-y-6"
                         >
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-                            <FormField
-                              control={form.control}
-                              name="nameAndDate"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel className="text-white font-semibold">
-                                    Please enter your name and the date:
-                                  </FormLabel>
-                                  <FormControl>
-                                    <Input {...field} />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
+                            <div className="flex gap-4">
+                              <FormField
+                                control={form.control}
+                                name="name"
+                                render={({ field }) => (
+                                  <FormItem className="w-7/10">
+                                    <FormLabel className="text-white font-semibold">
+                                      Please enter your name:
+                                    </FormLabel>
+                                    <FormControl>
+                                      <Input {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={form.control}
+                                name="date"
+                                render={({ field }) => (
+                                  <FormItem className="w-3/10">
+                                    <FormLabel className="text-white font-semibold">
+                                      Date:
+                                    </FormLabel>
+                                    <FormControl>
+                                      <Input {...field} type="date" />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
                             <FormField
                               control={form.control}
                               name="role"
@@ -464,7 +481,7 @@ export function CybersecurityAssessmentForm() {
                           </div>
                           <Button
                             type="submit"
-                            className="w-full bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 hover:from-indigo-500 hover:via-purple-500 hover:to-indigo-600 text-white shadow-lg transform transition-all duration-300 hover:scale-105"
+                            className="w-full bg-gradient-to-r from-[#3B3FA1] via-[#1B56B7] to-[#0072CD] hover:from-[#2A2D8A] hover:via-[#1A4BA3] hover:to-[#005BB3] text-white shadow-lg transform transition-all duration-300 hover:scale-105"
                           >
                             Start Assessment
                           </Button>

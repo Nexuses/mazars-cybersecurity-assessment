@@ -5,7 +5,8 @@ import { questionsData } from '@/lib/questions';
 // Define the structure of the request body
 interface AssessmentData {
   personalInfo: {
-    nameAndDate: string;
+    name: string;
+    date: string;
     role: string;
     environmentType: string;
     environmentSize: string;
@@ -73,8 +74,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 <th colspan="2">Client Information</th>
               </tr>
               <tr>
-                <td><strong>Name & Date:</strong></td>
-                <td>${personalInfo.nameAndDate}</td>
+                <td><strong>Name:</strong></td>
+                <td>${personalInfo.name}</td>
+              </tr>
+              <tr>
+                <td><strong>Date:</strong></td>
+                <td>${personalInfo.date}</td>
               </tr>
               <tr>
                 <td><strong>Role:</strong></td>

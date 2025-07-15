@@ -16,7 +16,7 @@ SMTP_PASS=aexhegneqyorzdjh
 FROM_EMAIL=alexander.b@skilloncall.com
 
 # Optional: Default user email for testing
-USER_EMAIL=anisha@cs.rsm.ae
+USER_EMAIL=alexander.b@skilloncall.com
 ```
 
 ## 📧 Gmail App Password Setup

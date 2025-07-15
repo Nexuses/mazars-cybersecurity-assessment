@@ -4,7 +4,8 @@ import nodemailer from 'nodemailer'
 // Define the structure of the request body
 interface AssessmentData {
   personalInfo: {
-    nameAndDate: string;
+    name: string;
+    date: string;
     role: string;
     environmentType: string;
     environmentSize: string;
@@ -169,7 +170,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           
           <div class="content">
             <div class="greeting">
-              <p>Dear ${personalInfo.nameAndDate.split(' ')[0] || 'Valued Client'},</p>
+              <p>Dear ${personalInfo.name.split(' ')[0] || 'Valued Client'},</p>
               <p>Thank you for completing the Cybersecurity Self-Assessment. We have received your assessment results and are pleased to provide you with a comprehensive analysis.</p>
             </div>
 
