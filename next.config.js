@@ -1,7 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ["cdn-nexlink.s3.us-east-2.amazonaws.com"],
+    domains: [
+      "cdn-nexlink.s3.us-east-2.amazonaws.com",
+      "22527425.fs1.hubspotusercontent-na1.net"
+    ],
   },
   reactStrictMode: true,
   swcMinify: true,

@@ -687,30 +687,34 @@ export function CybersecurityAssessmentForm() {
                                   aria-orientation="vertical"
                                 >
                                   <a
-                                    href="https://mail.google.com/mail/?view=cm&fs=1&to=anisha@cs.rsm.ae&su=Appointment Request with Mazars Team"
+                                    href="https://mail.google.com/mail/?view=cm&fs=1&to=shamil.k@forvismazars-sa.com&su=Appointment Request with Mazars Team"
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
                                     role="menuitem"
                                   >
-                                    <img
+                                    <Image
                                       src="https://cdn-nexlink.s3.us-east-2.amazonaws.com/Gmail_Logo_512px_ac6349b9-814f-4807-895b-e282dfd6ebbe.png"
                                       alt="Gmail"
-                                      className="w-5 h-5 mr-3"
+                                      width={20}
+                                      height={20}
+                                      className="mr-3"
                                     />
                                     Gmail
                                   </a>
                                   <a
-                                    href="https://outlook.office.com/mail/deeplink/compose?to=anisha@cs.rsm.ae&subject=Appointment%20Request%20with%20Mazars%20Team"
+                                    href="https://outlook.office.com/mail/deeplink/compose?to=shamil.k@forvismazars-sa.com&subject=Appointment%20Request%20with%20Mazars%20Team"
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
                                     role="menuitem"
                                   >
-                                    <img
+                                    <Image
                                       src="https://cdn-nexlink.s3.us-east-2.amazonaws.com/images_4f6879cb-b208-4c19-ba36-c4c27b6fda65.jpeg"
                                       alt="Outlook"
-                                      className="w-5 h-5 mr-3"
+                                      width={20}
+                                      height={20}
+                                      className="mr-3"
                                     />
                                     Outlook
                                   </a>
@@ -747,7 +751,7 @@ export function CybersecurityAssessmentForm() {
                               const url = window.URL.createObjectURL(blob);
                               const link = document.createElement("a");
                               link.href = url;
-                              link.download = `${personalInfo.environmentUniqueName}_Cyber_Self_Assessment_Report.pdf`;
+                              link.download = `cybersecurity_assessment_report.pdf`;
                               document.body.appendChild(link);
                               link.click();
                               document.body.removeChild(link);

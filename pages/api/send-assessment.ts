@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import nodemailer from 'nodemailer'
 import { questionsData } from '@/lib/questions';
+import clientPromise from '@/lib/mongodb';
 
 // Define the structure of the request body
 interface AssessmentData {
@@ -154,6 +155,39 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       user: process.env.SMTP_USER ? "***" : "NOT SET",
       from: process.env.FROM_EMAIL
     });
+    
+    // Store assessment data in MongoDB
+    try {
+      const client = await clientPromise;
+      const db = client.db();
+      const collection = db.collection('assessments');
+      
+      const assessmentRecord = {
+        personalInfo,
+        answers,
+        score,
+        language,
+        detailedAnswers: Object.entries(answers).map(([questionId, answerValue]) => {
+          const question = currentQuestions.find((q) => q.id === questionId);
+          const answer = question?.options.find((opt) => opt.value === answerValue);
+          return {
+            questionId,
+            questionText: question?.text || 'Unknown question',
+            answerValue,
+            answerLabel: answer?.label || 'Unknown answer',
+            category: question?.category || 'Unknown'
+          };
+        }),
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+
+      const result = await collection.insertOne(assessmentRecord);
+      console.log('Assessment stored in MongoDB with ID:', result.insertedId);
+    } catch (dbError) {
+      console.error('Error storing in MongoDB:', dbError);
+      // Continue with email sending even if MongoDB fails
+    }
     
     // Send internal notification email
     await transporter.sendMail({

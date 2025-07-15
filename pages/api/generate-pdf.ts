@@ -17,8 +17,8 @@ interface RequestBody {
 interface PersonalInfo {
   name: string;
   email: string;
-  company: string;
-  position: string;
+  company?: string;
+  position?: string;
 }
 
 // Add these types
@@ -26,15 +26,6 @@ type Question = {
   id: string;
   text: string;
   options: Array<{ value: string; label: string }>;
-};
-
-// Add getResultText function
-const getResultText = (score: number, language: 'en' | 'fr' = 'en') => {
-  const t = translations[language] || translations.en;
-  if (score >= 85) return t.resultTexts.advanced;
-  if (score >= 65) return t.resultTexts.solid;
-  if (score >= 35) return t.resultTexts.basic;
-  return t.resultTexts.urgent;
 };
 
 // Create styles for the PDF
@@ -117,8 +108,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const { personalInfo, score, answers, language } = req.body as RequestBody;
 
     // Validate required fields
-    if (!personalInfo || !personalInfo.name || !personalInfo.email || !personalInfo.company) {
-      return res.status(400).json({ message: 'Missing required personal information' });
+    if (!personalInfo || !personalInfo.name || !personalInfo.email) {
+      return res.status(400).json({ message: 'Missing required personal information (name and email)' });
     }
 
     if (score === undefined || score === null) {
@@ -155,7 +146,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           React.createElement(View, { style: styles.header },
             React.createElement(Image, {
               style: styles.logo,
-              src: "https://cdn-nexlink.s3.us-east-2.amazonaws.com/rsm-international-vector-logo_2-removebg-preview_5f53785d-2f5c-421e-a976-6388f78a00f2.png"
+              src: "https://22527425.fs1.hubspotusercontent-na1.net/hubfs/22527425/RSM%20Sustainibility%20Landing%20page/Group%203.png"
             }),
             React.createElement(Text, { style: styles.title }, t.pdfLabels.assessmentResults)
           ),
@@ -201,12 +192,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             )
           ),
 
-          // Score Section
-          React.createElement(View, { style: styles.section },
-            React.createElement(Text, { style: styles.score }, `${t.pdfLabels.score}: ${score}`),
-            React.createElement(Text, { style: styles.resultText }, getResultText(score, language))
-          ),
-
           // Questions and Answers Section
           React.createElement(View, { style: styles.section },
             React.createElement(View, { style: styles.tableRow },
@@ -228,7 +213,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Set response headers
     res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', 'attachment; filename=assessment_report.pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename=cybersecurity_assessment_report.pdf');
 
     // Send the PDF
     res.send(pdfBuffer);
