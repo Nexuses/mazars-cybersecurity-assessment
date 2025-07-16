@@ -146,7 +146,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           React.createElement(View, { style: styles.header },
             React.createElement(Image, {
               style: styles.logo,
-              src: "https://22527425.fs1.hubspotusercontent-na1.net/hubfs/22527425/RSM%20Sustainibility%20Landing%20page/Group%203.png"
+              src: "/favicon.png"
             }),
             React.createElement(Text, { style: styles.title }, t.pdfLabels.assessmentResults)
           ),

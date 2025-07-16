@@ -57,7 +57,7 @@ export default function AdminPage() {
       <div className="md:w-1/2 bg-[#0066b2] flex flex-col justify-center items-center p-8 text-white">
         <div className="max-w-md text-center">
           <Image
-            src="https://22527425.fs1.hubspotusercontent-na1.net/hubfs/22527425/RSM%20Sustainibility%20Landing%20page/Group%203.png"
+            src="/favicon.png"
             alt="Mazars Logo"
             width={200}
             height={80}

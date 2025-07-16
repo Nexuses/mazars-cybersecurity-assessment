@@ -28,14 +28,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
+    // Log environment check
+    console.log('Checking environment variables...');
+    if (!process.env.MONGODB_URI) {
+      throw new Error('MONGODB_URI is not configured');
+    }
+
     const { personalInfo, answers, score, language = 'en' } = req.body as AssessmentData;
     const currentQuestions = questionsData[language as keyof typeof questionsData];
 
+    console.log('Attempting to connect to MongoDB...');
     // Get database connection
     const client = await clientPromise;
     const db = client.db();
     const collection = db.collection('assessments');
 
+    console.log('Preparing assessment data...');
     // Prepare the assessment data for storage
     const assessmentRecord = {
       personalInfo,
@@ -58,6 +66,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       updatedAt: new Date()
     };
 
+    console.log('Inserting assessment into MongoDB...');
     // Insert the assessment data into MongoDB
     const result = await collection.insertOne(assessmentRecord);
 
@@ -69,7 +78,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
 
   } catch (error) {
-    console.error('Error storing assessment in MongoDB:', error);
+    console.error('Detailed error in store-assessment:', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      mongodbUri: process.env.MONGODB_URI ? 'Configured' : 'Missing',
+      nodeEnv: process.env.NODE_ENV
+    });
+    
     res.status(500).json({ 
       message: 'Failed to store assessment',
       error: error instanceof Error ? error.message : 'Unknown error',
