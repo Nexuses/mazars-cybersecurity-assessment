@@ -23,11 +23,26 @@ interface Assessment {
     environmentImportance: string;
     environmentMaturity: string;
   };
+  selectedCategories: string[];
+  selectedAreas: string[];
+  score: number;
+  totalQuestions: number;
+  completedQuestions: number;
+  assessmentMetadata: {
+    language: string;
+    assessmentDate: string;
+    assessmentDuration: number;
+    userAgent: string;
+    screenResolution: string;
+  };
   detailedAnswers: Array<{
     questionText: string;
     answerLabel: string;
     category: string;
+    area: string;
+    topic: string;
   }>;
+  createdAt: string;
 }
 
 export function AdminDashboard() {
@@ -75,6 +90,11 @@ export function AdminDashboard() {
   const thisMonthAssessments = assessments.filter(a => 
     new Date(a.personalInfo.date).getMonth() === currentMonth
   ).length;
+  
+  // Calculate average score
+  const averageScore = assessments.length > 0 
+    ? Math.round(assessments.reduce((sum, a) => sum + (a.score || 0), 0) / assessments.length)
+    : 0;
 
   return (
     <>
@@ -124,7 +144,7 @@ export function AdminDashboard() {
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">Average Score</p>
-                    <h3 className="text-2xl font-bold">-</h3>
+                    <h3 className="text-2xl font-bold">{averageScore}%</h3>
                   </div>
                 </div>
               </CardContent>
@@ -186,7 +206,8 @@ export function AdminDashboard() {
                   <tr>
                     <th className="text-left p-4 font-medium">Name</th>
                     <th className="text-left p-4 font-medium">Environment</th>
-                    <th className="text-left p-4 font-medium">Role</th>
+                    <th className="text-left p-4 font-medium">Score</th>
+                    <th className="text-left p-4 font-medium">Categories</th>
                     <th className="text-left p-4 font-medium">Date</th>
                     <th className="text-left p-4 font-medium">Actions</th>
                   </tr>
@@ -206,7 +227,28 @@ export function AdminDashboard() {
                           <div className="text-sm text-gray-500">{assessment.personalInfo.marketSector}</div>
                         </div>
                       </td>
-                      <td className="p-4">{assessment.personalInfo.role}</td>
+                      <td className="p-4">
+                        <div className={`font-semibold ${
+                          assessment.score >= 85 ? 'text-green-600' :
+                          assessment.score >= 65 ? 'text-yellow-600' :
+                          assessment.score >= 35 ? 'text-orange-600' :
+                          'text-red-600'
+                        }`}>
+                          {assessment.score}%
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {assessment.completedQuestions}/{assessment.totalQuestions} questions
+                        </div>
+                      </td>
+                      <td className="p-4">
+                        <div className="text-sm">
+                          {assessment.selectedCategories?.slice(0, 2).join(', ')}
+                          {assessment.selectedCategories?.length > 2 && '...'}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {assessment.selectedAreas?.length} areas
+                        </div>
+                      </td>
                       <td className="p-4">{new Date(assessment.personalInfo.date).toLocaleDateString()}</td>
                       <td className="p-4">
                         <Button variant="ghost" size="sm" onClick={() => handleViewDetails(assessment)}>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Card,
   CardContent,
@@ -184,12 +184,30 @@ export function CybersecurityAssessmentForm() {
   const [questions] = useState<Question[]>(questionsData[currentLanguage]);
   const [showReport, setShowReport] = useState(false);
   const isRTL = false;
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const t = translations[currentLanguage];
 
+  // Click outside handler for dropdown
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    }
+
+    if (isDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isDropdownOpen]);
+
   const formSchema = z.object({
     name: z.string().min(2, { message: "Please enter your name." }),
-    date: z.string().min(2, { message: "Please enter the date." }),
+    date: z.string(), // Date is automatically set, no validation needed
     role: z.string().min(2, { message: "Please select your role or job title." }),
     environmentType: z.string().min(2, { message: "Please specify the type of environment." }),
     environmentSize: z.string().min(1, { message: "Please specify the size of the environment." }),
@@ -205,7 +223,7 @@ export function CybersecurityAssessmentForm() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
-      date: "",
+      date: new Date().toISOString().split('T')[0], // Set current date automatically
       role: "",
       environmentType: "",
       environmentSize: "",
@@ -231,6 +249,8 @@ export function CybersecurityAssessmentForm() {
       return;
     }
     setFormErrors([]);
+    // Track assessment start time
+    (window as typeof window & { assessmentStartTime?: number }).assessmentStartTime = Date.now();
     setCurrentQuestion(2); // Move to the first question
   };
 
@@ -354,12 +374,49 @@ export function CybersecurityAssessmentForm() {
       selectedAreas,
       answers,
       score: percentageScore,
+      totalQuestions: filteredQuestions.length,
+      completedQuestions: Object.keys(answers).length,
+      assessmentMetadata: {
+        language: currentLanguage,
+        assessmentDate: new Date().toISOString(),
+        assessmentDuration: Date.now() - ((window as typeof window & { assessmentStartTime?: number }).assessmentStartTime || 0),
+        userAgent: navigator.userAgent,
+        screenResolution: `${window.screen.width}x${window.screen.height}`,
+      },
+      questionDetails: filteredQuestions.map(question => ({
+        id: question.id,
+        text: question.text,
+        category: question.category,
+        area: question.area,
+        topic: question.topic,
+        options: question.options,
+        selectedAnswer: answers[question.id] || null,
+      })),
     };
 
     // Send the data to the server
     try {
       console.log("Sending assessment data:", assessmentData);
       
+      // Store assessment data in MongoDB (primary method)
+      const storeResponse = await fetch("/api/store-assessment", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(assessmentData),
+      });
+
+      if (!storeResponse.ok) {
+        const errorData = await storeResponse.json();
+        console.error("Store assessment error:", errorData);
+        throw new Error(
+          errorData.message || "Failed to store assessment data"
+        );
+      }
+
+      console.log("Assessment data stored successfully");
+
       // Send internal notification
       const response = await fetch("/api/send-assessment", {
         method: "POST",
@@ -372,12 +429,11 @@ export function CybersecurityAssessmentForm() {
       if (!response.ok) {
         const errorData = await response.json();
         console.error("Internal email error:", errorData);
-        throw new Error(
-          errorData.message || "Failed to send assessment results"
-        );
+        // Don't throw error here, as data is already stored
+        console.warn("Failed to send internal email, but assessment data was stored");
+      } else {
+        console.log("Internal email sent successfully");
       }
-
-      console.log("Internal email sent successfully");
 
       // Send user email notification
       const userEmailResponse = await fetch("/api/send-user-email", {
@@ -391,14 +447,15 @@ export function CybersecurityAssessmentForm() {
       if (!userEmailResponse.ok) {
         const errorData = await userEmailResponse.json();
         console.error("User email error:", errorData);
-        throw new Error(errorData.message || "Failed to send user email");
+        // Don't throw error here, as data is already stored
+        console.warn("Failed to send user email, but assessment data was stored");
+      } else {
+        console.log("User email sent successfully to:", personalInfo.email);
       }
-
-      console.log("User email sent successfully to:", personalInfo.email);
     } catch (error) {
-      console.error("Error sending assessment results:", error);
+      console.error("Error processing assessment results:", error);
       // Show error to user
-      alert("There was an issue sending the assessment results. Please try again or contact support.");
+      alert("There was an issue processing the assessment results. Please try again or contact support.");
     }
   };
 
@@ -488,10 +545,15 @@ export function CybersecurityAssessmentForm() {
                                 render={({ field }) => (
                                   <FormItem className="w-3/10">
                                     <FormLabel className="text-gray-700 font-semibold">
-                                      Date:
+                                      Date: (Auto-set)
                                     </FormLabel>
                                     <FormControl>
-                                      <Input {...field} type="date" className="border-gray-300 focus:border-[#3B3FA1] focus:ring-[#3B3FA1]" />
+                                      <Input 
+                                        {...field} 
+                                        type="date" 
+                                        readOnly
+                                        className="border-gray-300 focus:border-[#3B3FA1] focus:ring-[#3B3FA1] bg-gray-50" 
+                                      />
                                     </FormControl>
                                     <FormMessage />
                                   </FormItem>
@@ -639,7 +701,7 @@ export function CybersecurityAssessmentForm() {
                               type="submit"
                               className="bg-[#3B3FA1] hover:bg-[#2A2D8A] text-white px-8 py-3 rounded-lg font-semibold shadow-lg transform transition-all duration-200 hover:scale-105"
                             >
-                              Continue
+                              Start Assessment
                             </Button>
                           </div>
                         </form>
@@ -967,7 +1029,7 @@ export function CybersecurityAssessmentForm() {
                         className="text-center space-y-6"
                       >
                           <div className="flex justify-center">
-                          <div className="w-20 h-20 bg-[#3B3FA1] rounded-full flex items-center justify-center shadow-lg">
+                          <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center shadow-lg">
                             <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                               </svg>
@@ -995,7 +1057,7 @@ export function CybersecurityAssessmentForm() {
                         transition={{ delay: 0.9, duration: 0.5 }}
                         className="flex flex-col gap-4 sm:flex-row sm:justify-center sm:items-center mt-8"
                       >
-                        <div className="relative inline-block text-left w-full sm:w-56">
+                        <div className="relative inline-block text-left w-full sm:w-56" ref={dropdownRef}>
                           <button
                             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                             type="button"
@@ -1027,6 +1089,7 @@ export function CybersecurityAssessmentForm() {
                                     rel="noopener noreferrer"
                                     className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                     role="menuitem"
+                                    onClick={() => setIsDropdownOpen(false)}
                                   >
                                     <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
                                       <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -1042,6 +1105,7 @@ export function CybersecurityAssessmentForm() {
                                     rel="noopener noreferrer"
                                     className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                     role="menuitem"
+                                    onClick={() => setIsDropdownOpen(false)}
                                   >
                                     <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
                                       <path fill="#0078D4" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
@@ -1077,6 +1141,7 @@ export function CybersecurityAssessmentForm() {
                                 selectedAreas,
                                 answers,
                                 score,
+                                language: currentLanguage,
                               };
                               
                               fetch('/api/generate-pdf', {

@@ -292,6 +292,7 @@ export function AssessmentReport({
                     selectedAreas,
                     answers,
                     score,
+                    language: 'en',
                   };
                   
                   fetch('/api/generate-pdf', {

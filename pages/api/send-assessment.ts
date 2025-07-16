@@ -18,8 +18,28 @@ interface AssessmentData {
     country: string;
     email: string;
   };
+  selectedCategories: string[];
+  selectedAreas: string[];
   answers: Record<string, string>;
   score: number;
+  totalQuestions: number;
+  completedQuestions: number;
+  assessmentMetadata: {
+    language: string;
+    assessmentDate: string;
+    assessmentDuration: number;
+    userAgent: string;
+    screenResolution: string;
+  };
+  questionDetails: Array<{
+    id: string;
+    text: string;
+    category: string;
+    area: string;
+    topic: string;
+    options: Array<{ value: string; label: string; score: number }>;
+    selectedAnswer: string | null;
+  }>;
   language?: 'en' | 'fr';
 }
 
@@ -28,9 +48,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).json({ message: 'Method Not Allowed' })
   }
 
-  const { personalInfo, answers, score, language = 'en' } = req.body as AssessmentData
-  // const t = translations[language as keyof typeof translations];
-  const currentQuestions = questionsData[language as keyof typeof questionsData];
+      const { 
+      personalInfo, 
+      selectedCategories, 
+      selectedAreas, 
+      answers, 
+      score, 
+      totalQuestions, 
+      completedQuestions, 
+      assessmentMetadata, 
+      questionDetails, 
+      language = 'en' 
+    } = req.body as AssessmentData
+    // const t = translations[language as keyof typeof translations];
+    const currentQuestions = questionsData[language as keyof typeof questionsData];
 
   // Create a transporter using SMTP
   const transporter = nodemailer.createTransport({
@@ -164,8 +195,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       
       const assessmentRecord = {
         personalInfo,
+        selectedCategories,
+        selectedAreas,
         answers,
         score,
+        totalQuestions,
+        completedQuestions,
+        assessmentMetadata,
+        questionDetails,
         language,
         detailedAnswers: Object.entries(answers).map(([questionId, answerValue]) => {
           const question = currentQuestions.find((q) => q.id === questionId);
@@ -175,7 +212,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             questionText: question?.text || 'Unknown question',
             answerValue,
             answerLabel: answer?.label || 'Unknown answer',
-            category: question?.category || 'Unknown'
+            category: question?.category || 'Unknown',
+            area: question?.area || 'Unknown',
+            topic: question?.topic || 'Unknown'
           };
         }),
         createdAt: new Date(),

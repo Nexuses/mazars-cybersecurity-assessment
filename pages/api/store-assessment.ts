@@ -1,8 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { MongoClient } from 'mongodb';
 import clientPromise from '@/lib/mongodb';
 import { questionsData } from '@/lib/questions';
 
-// Define the structure of the request body
+// Define the enhanced structure of the request body
 interface AssessmentData {
   personalInfo: {
     name: string;
@@ -17,8 +18,28 @@ interface AssessmentData {
     country: string;
     email: string;
   };
+  selectedCategories: string[];
+  selectedAreas: string[];
   answers: Record<string, string>;
   score: number;
+  totalQuestions: number;
+  completedQuestions: number;
+  assessmentMetadata: {
+    language: string;
+    assessmentDate: string;
+    assessmentDuration: number;
+    userAgent: string;
+    screenResolution: string;
+  };
+  questionDetails: Array<{
+    id: string;
+    text: string;
+    category: string;
+    area: string;
+    topic: string;
+    options: Array<{ value: string; label: string; score: number }>;
+    selectedAnswer: string | null;
+  }>;
   language?: 'en' | 'fr';
 }
 
@@ -34,23 +55,46 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       throw new Error('MONGODB_URI is not configured');
     }
 
-    const { personalInfo, answers, score, language = 'en' } = req.body as AssessmentData;
+    const { 
+      personalInfo, 
+      selectedCategories, 
+      selectedAreas, 
+      answers, 
+      score, 
+      totalQuestions, 
+      completedQuestions, 
+      assessmentMetadata, 
+      questionDetails, 
+      language = 'en' 
+    } = req.body as AssessmentData;
+    
     const currentQuestions = questionsData[language as keyof typeof questionsData];
 
     console.log('Attempting to connect to MongoDB...');
-    // Get database connection
-    const client = await clientPromise;
+    // Get database connection with timeout
+    const client = await Promise.race([
+      clientPromise,
+      new Promise<never>((_, reject) => 
+        setTimeout(() => reject(new Error('MongoDB connection timeout')), 10000)
+      )
+    ]) as MongoClient;
     const db = client.db();
     const collection = db.collection('assessments');
 
-    console.log('Preparing assessment data...');
-    // Prepare the assessment data for storage
+    console.log('Preparing enhanced assessment data...');
+    // Prepare the comprehensive assessment data for storage
     const assessmentRecord = {
       personalInfo,
+      selectedCategories,
+      selectedAreas,
       answers,
       score,
+      totalQuestions,
+      completedQuestions,
+      assessmentMetadata,
+      questionDetails,
       language,
-      // Add detailed question and answer mapping
+      // Add detailed question and answer mapping with enhanced information
       detailedAnswers: Object.entries(answers).map(([questionId, answerValue]) => {
         const question = currentQuestions.find((q) => q.id === questionId);
         const answer = question?.options.find((opt) => opt.value === answerValue);
@@ -59,22 +103,31 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           questionText: question?.text || 'Unknown question',
           answerValue,
           answerLabel: answer?.label || 'Unknown answer',
-          category: question?.category || 'Unknown'
+          category: question?.category || 'Unknown',
+          area: question?.area || 'Unknown',
+          topic: question?.topic || 'Unknown'
         };
       }),
       createdAt: new Date(),
       updatedAt: new Date()
     };
 
-    console.log('Inserting assessment into MongoDB...');
-    // Insert the assessment data into MongoDB
+    console.log('Inserting enhanced assessment into MongoDB...');
+    // Insert the comprehensive assessment data into MongoDB
     const result = await collection.insertOne(assessmentRecord);
 
-    console.log('Assessment stored in MongoDB with ID:', result.insertedId);
+    console.log('Enhanced assessment stored in MongoDB with ID:', result.insertedId);
 
     res.status(200).json({ 
       message: 'Assessment stored successfully',
-      assessmentId: result.insertedId
+      assessmentId: result.insertedId,
+      data: {
+        score,
+        totalQuestions,
+        completedQuestions,
+        selectedCategories: selectedCategories.length,
+        selectedAreas: selectedAreas.length
+      }
     });
 
   } catch (error) {

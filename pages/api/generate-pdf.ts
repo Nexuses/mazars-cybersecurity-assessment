@@ -17,6 +17,7 @@ interface RequestBody {
 interface PersonalInfo {
   name: string;
   email: string;
+  environmentUniqueName?: string;
   company?: string;
   position?: string;
 }
@@ -142,11 +143,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       return React.createElement(Document, {},
         React.createElement(Page, { size: "A4", style: styles.page },
-          // Header with Logo
+          // Header with Logo and Title
           React.createElement(View, { style: styles.header },
             React.createElement(Image, {
               style: styles.logo,
-              src: "/favicon.png"
+              src: "https://22527425.fs1.hubspotusercontent-na1.net/hubfs/22527425/favicon.png.png"
             }),
             React.createElement(Text, { style: styles.title }, t.pdfLabels.assessmentResults)
           ),
@@ -176,18 +177,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             ),
             React.createElement(View, { style: styles.tableRow },
               React.createElement(View, { style: styles.tableColHeader },
-                React.createElement(Text, { style: styles.tableCellHeader }, `${t.pdfLabels.company}:`)
+                React.createElement(Text, { style: styles.tableCellHeader }, `${t.pdfLabels.environmentName}:`)
               ),
               React.createElement(View, { style: styles.tableCol },
-                React.createElement(Text, { style: styles.tableCell }, personalInfo.company)
+                React.createElement(Text, { style: styles.tableCell }, personalInfo.environmentUniqueName || 'N/A')
               )
             ),
             React.createElement(View, { style: styles.tableRow },
               React.createElement(View, { style: styles.tableColHeader },
-                React.createElement(Text, { style: styles.tableCellHeader }, `${t.pdfLabels.position}:`)
+                React.createElement(Text, { style: styles.tableCellHeader }, `${t.pdfLabels.overallScore}:`)
               ),
               React.createElement(View, { style: styles.tableCol },
-                React.createElement(Text, { style: styles.tableCell }, personalInfo.position)
+                React.createElement(Text, { style: styles.tableCell }, `${score}%`)
               )
             )
           ),
