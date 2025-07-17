@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Users, TrendingUp, Calendar, Globe, Eye, LogOut } from "lucide-react";
+import { Users, TrendingUp, Calendar, Globe, Eye, LogOut, Search, Filter, Download, RefreshCw } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { AssessmentDetailsModal } from './assessment-details-modal';
 
@@ -50,8 +50,10 @@ export function AdminDashboard() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedAssessment, setSelectedAssessment] = useState<Assessment | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const fetchAssessments = async () => {
+    setIsLoading(true);
     try {
       const params = new URLSearchParams({
         limit: "10",
@@ -63,16 +65,14 @@ export function AdminDashboard() {
       setAssessments(data.assessments);
     } catch (error) {
       console.error("Error fetching assessments:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
     fetchAssessments();
   }, []);
-
-  const handleSearch = () => {
-    // Implement search functionality
-  };
 
   const handleViewDetails = (assessment: Assessment) => {
     setSelectedAssessment(assessment);
@@ -84,34 +84,56 @@ export function AdminDashboard() {
   };
 
   // Calculate statistics
-  const totalAssessments = assessments.length;
-  const uniqueCountries = new Set(assessments.map(a => a.personalInfo.country)).size;
+  const totalAssessments = assessments?.length || 0;
+  const uniqueCountries = assessments ? new Set(assessments.map(a => a.personalInfo.country)).size : 0;
   const currentMonth = new Date().getMonth();
-  const thisMonthAssessments = assessments.filter(a => 
+  const thisMonthAssessments = assessments ? assessments.filter(a => 
     new Date(a.personalInfo.date).getMonth() === currentMonth
-  ).length;
+  ).length : 0;
   
+  // Filter assessments based on search term
+  const filteredAssessments = assessments?.filter(assessment => {
+    if (!searchTerm) return true;
+    
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      assessment.personalInfo.name.toLowerCase().includes(searchLower) ||
+      assessment.personalInfo.email.toLowerCase().includes(searchLower) ||
+      assessment.personalInfo.environmentUniqueName.toLowerCase().includes(searchLower) ||
+      assessment.personalInfo.role.toLowerCase().includes(searchLower)
+    );
+  }) || [];
+
   // Calculate average score
-  const averageScore = assessments.length > 0 
+  const averageScore = assessments && assessments.length > 0 
     ? Math.round(assessments.reduce((sum, a) => sum + (a.score || 0), 0) / assessments.length)
     : 0;
 
   return (
     <>
-      <div className="min-h-screen bg-white">
-        {/* Header */}
-        <div className="border-b">
+      <div className="min-h-screen bg-gray-50">
+        {/* Modern Header with requested color */}
+        <div className="bg-[#3B3FA1] text-white shadow-lg">
           <div className="flex justify-between items-center px-6 py-4 max-w-7xl mx-auto">
-            <div>
-              <h1 className="text-2xl font-semibold">Admin Dashboard</h1>
-              <p className="text-gray-500">Cybersecurity Assessment Management</p>
+            <div className="flex items-center space-x-4">
+              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-2">
+                <Users className="h-6 w-6" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+                <p className="text-blue-100 text-sm">Cybersecurity Assessment Management</p>
+              </div>
             </div>
             <div className="flex items-center gap-4">
               <div className="text-right">
                 <p className="font-medium">Admin</p>
-                <p className="text-sm text-gray-500">admin@forvismazars.com</p>
+                <p className="text-blue-100 text-sm">admin@forvismazars.com</p>
               </div>
-              <Button variant="ghost" onClick={handleLogout}>
+              <Button 
+                variant="ghost" 
+                onClick={handleLogout}
+                className="text-white hover:bg-white/10 border border-white/20"
+              >
                 <LogOut className="h-4 w-4 mr-2" />
                 Logout
               </Button>
@@ -120,138 +142,191 @@ export function AdminDashboard() {
         </div>
 
         <div className="max-w-7xl mx-auto px-6 py-8">
-          {/* Statistics Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <Card>
+          {/* Modern Statistics Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <Card className="bg-white shadow-sm hover:shadow-md transition-shadow duration-200 border-0">
               <CardContent className="pt-6">
-                <div className="flex items-center gap-4">
-                  <div className="bg-blue-50 p-3 rounded-lg">
-                    <Users className="h-6 w-6 text-blue-500" />
-                  </div>
+                <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-500">Total Assessments</p>
-                    <h3 className="text-2xl font-bold">{totalAssessments}</h3>
+                    <p className="text-sm font-medium text-gray-600 mb-1">Total Assessments</p>
+                    <h3 className="text-3xl font-bold text-gray-900">{totalAssessments}</h3>
+                    <p className="text-xs text-gray-500 mt-1">All time submissions</p>
+                  </div>
+                  <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-3 rounded-xl">
+                    <Users className="h-6 w-6 text-white" />
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="bg-white shadow-sm hover:shadow-md transition-shadow duration-200 border-0">
               <CardContent className="pt-6">
-                <div className="flex items-center gap-4">
-                  <div className="bg-green-50 p-3 rounded-lg">
-                    <TrendingUp className="h-6 w-6 text-green-500" />
-                  </div>
+                <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-500">Average Score</p>
-                    <h3 className="text-2xl font-bold">{averageScore}%</h3>
+                    <p className="text-sm font-medium text-gray-600 mb-1">Average Score</p>
+                    <h3 className="text-3xl font-bold text-gray-900">{averageScore}%</h3>
+                    <p className="text-xs text-gray-500 mt-1">Overall performance</p>
+                  </div>
+                  <div className="bg-gradient-to-br from-green-500 to-green-600 p-3 rounded-xl">
+                    <TrendingUp className="h-6 w-6 text-white" />
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="bg-white shadow-sm hover:shadow-md transition-shadow duration-200 border-0">
               <CardContent className="pt-6">
-                <div className="flex items-center gap-4">
-                  <div className="bg-yellow-50 p-3 rounded-lg">
-                    <Calendar className="h-6 w-6 text-yellow-500" />
-                  </div>
+                <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-500">This Month</p>
-                    <h3 className="text-2xl font-bold">{thisMonthAssessments}</h3>
+                    <p className="text-sm font-medium text-gray-600 mb-1">This Month</p>
+                    <h3 className="text-3xl font-bold text-gray-900">{thisMonthAssessments}</h3>
+                    <p className="text-xs text-gray-500 mt-1">Current period</p>
+                  </div>
+                  <div className="bg-gradient-to-br from-yellow-500 to-yellow-600 p-3 rounded-xl">
+                    <Calendar className="h-6 w-6 text-white" />
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="bg-white shadow-sm hover:shadow-md transition-shadow duration-200 border-0">
               <CardContent className="pt-6">
-                <div className="flex items-center gap-4">
-                  <div className="bg-purple-50 p-3 rounded-lg">
-                    <Globe className="h-6 w-6 text-purple-500" />
-                  </div>
+                <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-500">Countries</p>
-                    <h3 className="text-2xl font-bold">{uniqueCountries}</h3>
+                    <p className="text-sm font-medium text-gray-600 mb-1">Countries</p>
+                    <h3 className="text-3xl font-bold text-gray-900">{uniqueCountries}</h3>
+                    <p className="text-xs text-gray-500 mt-1">Global reach</p>
+                  </div>
+                  <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-3 rounded-xl">
+                    <Globe className="h-6 w-6 text-white" />
                   </div>
                 </div>
               </CardContent>
             </Card>
           </div>
 
-          {/* Search */}
-          <div className="mb-8">
-            <div className="flex gap-4">
-              <Input
-                placeholder="Search by name, email, environment name, or role..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="flex-1"
-              />
-              <Button onClick={handleSearch}>
-                Search
-              </Button>
+          {/* Modern Search and Actions */}
+          <div className="bg-white rounded-xl shadow-sm border-0 p-6 mb-8">
+            <div className="flex flex-col sm:flex-row gap-4 items-center">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  placeholder="Search by name, email, environment name, or role..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 border-gray-200 focus:border-[#3B3FA1] focus:ring-[#3B3FA1]"
+                />
+              </div>
+              <div className="flex gap-2">
+                <Button 
+                  variant="outline" 
+                  className="border-gray-200 hover:border-[#3B3FA1] hover:text-[#3B3FA1]"
+                >
+                  <Filter className="h-4 w-4 mr-2" />
+                  Filter
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="border-gray-200 hover:border-[#3B3FA1] hover:text-[#3B3FA1]"
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Export
+                </Button>
+                <Button 
+                  onClick={fetchAssessments}
+                  disabled={isLoading}
+                  className="bg-[#3B3FA1] hover:bg-[#2d3180] text-white"
+                >
+                  <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+                  Refresh
+                </Button>
+              </div>
             </div>
           </div>
 
-          {/* Assessment List */}
-          <div className="bg-white rounded-lg border">
-            <div className="p-6">
-              <h2 className="text-xl font-semibold mb-2">Assessment Submissions</h2>
-              <p className="text-gray-500">View and manage all cybersecurity assessment submissions</p>
+          {/* Modern Assessment List */}
+          <div className="bg-white rounded-xl shadow-sm border-0 overflow-hidden">
+            <div className="p-6 border-b border-gray-100">
+              <h2 className="text-xl font-semibold text-gray-900 mb-1">Assessment Submissions</h2>
+              <p className="text-gray-500 text-sm">View and manage all cybersecurity assessment submissions</p>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-gray-50 border-y">
+                <thead className="bg-gray-50">
                   <tr>
-                    <th className="text-left p-4 font-medium">Name</th>
-                    <th className="text-left p-4 font-medium">Environment</th>
-                    <th className="text-left p-4 font-medium">Score</th>
-                    <th className="text-left p-4 font-medium">Categories</th>
-                    <th className="text-left p-4 font-medium">Date</th>
-                    <th className="text-left p-4 font-medium">Actions</th>
+                    <th className="text-left p-4 font-medium text-gray-700 text-sm">Name</th>
+                    <th className="text-left p-4 font-medium text-gray-700 text-sm">Environment</th>
+                    <th className="text-left p-4 font-medium text-gray-700 text-sm">Score</th>
+                    <th className="text-left p-4 font-medium text-gray-700 text-sm">Categories</th>
+                    <th className="text-left p-4 font-medium text-gray-700 text-sm">Date</th>
+                    <th className="text-left p-4 font-medium text-gray-700 text-sm">Actions</th>
                   </tr>
                 </thead>
-                <tbody>
-                  {assessments.map((assessment) => (
-                    <tr key={assessment._id} className="border-b">
+                <tbody className="divide-y divide-gray-100">
+                  {filteredAssessments.map((assessment) => (
+                    <tr key={assessment._id} className="hover:bg-gray-50 transition-colors duration-150">
                       <td className="p-4">
                         <div>
-                          <div className="font-medium">{assessment.personalInfo.name}</div>
+                          <div className="font-medium text-gray-900">{assessment.personalInfo.name}</div>
                           <div className="text-sm text-gray-500">{assessment.personalInfo.email}</div>
                         </div>
                       </td>
                       <td className="p-4">
                         <div>
-                          <div className="font-medium">{assessment.personalInfo.environmentUniqueName}</div>
+                          <div className="font-medium text-gray-900">{assessment.personalInfo.environmentUniqueName}</div>
                           <div className="text-sm text-gray-500">{assessment.personalInfo.marketSector}</div>
                         </div>
                       </td>
                       <td className="p-4">
-                        <div className={`font-semibold ${
-                          assessment.score >= 85 ? 'text-green-600' :
-                          assessment.score >= 65 ? 'text-yellow-600' :
-                          assessment.score >= 35 ? 'text-orange-600' :
-                          'text-red-600'
-                        }`}>
-                          {assessment.score}%
+                        <div className="flex items-center space-x-2">
+                          <div className={`font-semibold text-lg ${
+                            assessment.score >= 85 ? 'text-green-600' :
+                            assessment.score >= 65 ? 'text-yellow-600' :
+                            assessment.score >= 35 ? 'text-orange-600' :
+                            'text-red-600'
+                          }`}>
+                            {assessment.score}%
+                          </div>
+                          <div className="w-16 bg-gray-200 rounded-full h-2">
+                            <div 
+                              className={`h-2 rounded-full ${
+                                assessment.score >= 85 ? 'bg-green-500' :
+                                assessment.score >= 65 ? 'bg-yellow-500' :
+                                assessment.score >= 35 ? 'bg-orange-500' :
+                                'bg-red-500'
+                              }`}
+                              style={{ width: `${assessment.score}%` }}
+                            ></div>
+                          </div>
                         </div>
-                        <div className="text-xs text-gray-500">
+                        <div className="text-xs text-gray-500 mt-1">
                           {assessment.completedQuestions}/{assessment.totalQuestions} questions
                         </div>
                       </td>
                       <td className="p-4">
-                        <div className="text-sm">
+                        <div className="text-sm text-gray-900">
                           {assessment.selectedCategories?.slice(0, 2).join(', ')}
                           {assessment.selectedCategories?.length > 2 && '...'}
                         </div>
-                        <div className="text-xs text-gray-500">
+                        <div className="text-xs text-gray-500 mt-1">
                           {assessment.selectedAreas?.length} areas
                         </div>
                       </td>
-                      <td className="p-4">{new Date(assessment.personalInfo.date).toLocaleDateString()}</td>
                       <td className="p-4">
-                        <Button variant="ghost" size="sm" onClick={() => handleViewDetails(assessment)}>
+                        <div className="text-sm text-gray-900">
+                          {new Date(assessment.personalInfo.date).toLocaleDateString()}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {new Date(assessment.personalInfo.date).toLocaleTimeString()}
+                        </div>
+                      </td>
+                      <td className="p-4">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => handleViewDetails(assessment)}
+                          className="text-[#3B3FA1] hover:bg-[#3B3FA1]/10"
+                        >
                           <Eye className="h-4 w-4 mr-2" />
                           View
                         </Button>
@@ -260,6 +335,15 @@ export function AdminDashboard() {
                   ))}
                 </tbody>
               </table>
+              {(!assessments || assessments.length === 0) && (
+                <div className="text-center py-12">
+                  <div className="text-gray-400 mb-4">
+                    <Users className="h-12 w-12 mx-auto" />
+                  </div>
+                  <p className="text-gray-500">No assessments found</p>
+                  <p className="text-sm text-gray-400">Assessments will appear here once submitted</p>
+                </div>
+              )}
             </div>
           </div>
         </div>
