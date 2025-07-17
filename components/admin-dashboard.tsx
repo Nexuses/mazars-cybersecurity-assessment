@@ -58,10 +58,17 @@ export function AdminDashboard() {
       const params = new URLSearchParams({
         limit: "10",
         skip: "0",
+        _t: Date.now().toString(), // Cache busting parameter
       });
 
       console.log("🔍 Fetching assessments...");
-      const response = await fetch(`/api/get-assessments?${params}`);
+      const response = await fetch(`/api/get-assessments?${params}`, {
+        cache: 'no-cache', // Force fresh data
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache',
+        },
+      });
       console.log("📡 Response status:", response.status);
       
       const data = await response.json();
@@ -315,7 +322,7 @@ export function AdminDashboard() {
                   className="bg-[#3B3FA1] hover:bg-[#2d3180] text-white"
                 >
                   <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
-                  Refresh
+                  Refresh Data
                 </Button>
               </div>
             </div>
