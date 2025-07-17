@@ -60,8 +60,15 @@ export function AdminDashboard() {
         skip: "0",
       });
 
+      console.log("🔍 Fetching assessments...");
       const response = await fetch(`/api/get-assessments?${params}`);
+      console.log("📡 Response status:", response.status);
+      
       const data = await response.json();
+      console.log("📊 API Response data:", data);
+      console.log("📋 Assessments array:", data.assessments);
+      console.log("📊 Number of assessments:", data.assessments?.length || 0);
+      
       setAssessments(data.assessments);
     } catch (error) {
       console.error("Error fetching assessments:", error);

@@ -8,6 +8,7 @@ interface Assessment {
     environmentUniqueName: string;
   };
   createdAt: Date;
+  updatedAt?: Date;
   score: number;
 }
 
@@ -52,6 +53,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       .limit(Number(limit))
       .toArray();
 
+    // Convert Date objects to strings for frontend compatibility
+    const processedAssessments = assessments.map(assessment => ({
+      ...assessment,
+      createdAt: assessment.createdAt ? new Date(assessment.createdAt).toISOString() : new Date().toISOString(),
+      updatedAt: assessment.updatedAt ? new Date(assessment.updatedAt).toISOString() : new Date().toISOString()
+    }));
+
     // Calculate statistics
     const allScores = await collection.find({}).project({ score: 1 }).toArray();
     const scores = allScores.map(a => a.score);
@@ -63,7 +71,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     };
 
     res.status(200).json({
-      assessments,
+      assessments: processedAssessments,
       pagination: {
         total,
         limit: Number(limit),
