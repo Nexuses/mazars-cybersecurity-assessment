@@ -183,6 +183,7 @@ export function CybersecurityAssessmentForm() {
   const [currentLanguage] = useState<Language>('en');
   const [questions] = useState<Question[]>(questionsData[currentLanguage]);
   const [showReport, setShowReport] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const isRTL = false;
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -321,7 +322,10 @@ export function CybersecurityAssessmentForm() {
         setCurrentQuestion(currentQuestion + 1);
       } else {
         // If this is the last question, calculate score
-        calculateScore();
+        // Only call calculateScore if not already submitting
+        if (!isSubmitting) {
+          calculateScore();
+        }
       }
     }, 300); // 300ms delay for better UX
   };
@@ -340,6 +344,14 @@ export function CybersecurityAssessmentForm() {
   // };
 
   const calculateScore = async () => {
+    // Prevent duplicate submissions
+    if (isSubmitting) {
+      console.log("Assessment submission already in progress, skipping...");
+      return;
+    }
+
+    setIsSubmitting(true);
+
     const totalAnswered = Object.keys(answers).length;
     const totalPossibleScore = totalAnswered * 5; // Assuming 5 is the highest score
     const totalScore = Object.values(answers).reduce(
@@ -456,6 +468,8 @@ export function CybersecurityAssessmentForm() {
       console.error("Error processing assessment results:", error);
       // Show error to user
       alert("There was an issue processing the assessment results. Please try again or contact support.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 

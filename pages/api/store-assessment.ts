@@ -108,11 +108,36 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           topic: question?.topic || 'Unknown'
         };
       }),
+      // Add a unique submission identifier to prevent duplicates
+      submissionId: `${personalInfo.email}-${personalInfo.environmentUniqueName}-${Date.now()}`,
       createdAt: new Date(),
       updatedAt: new Date()
     };
 
     console.log('Inserting enhanced assessment into MongoDB...');
+    
+    // Check for potential duplicate submission (same email, environment, and recent timestamp)
+    const recentSubmission = await collection.findOne({
+      'personalInfo.email': personalInfo.email,
+      'personalInfo.environmentUniqueName': personalInfo.environmentUniqueName,
+      createdAt: { $gte: new Date(Date.now() - 60000) } // Within last minute
+    });
+    
+    if (recentSubmission) {
+      console.log('Duplicate submission detected, skipping...');
+      return res.status(200).json({ 
+        message: 'Assessment already submitted',
+        assessmentId: recentSubmission._id,
+        data: {
+          score,
+          totalQuestions,
+          completedQuestions,
+          selectedCategories: selectedCategories.length,
+          selectedAreas: selectedAreas.length
+        }
+      });
+    }
+    
     // Insert the comprehensive assessment data into MongoDB
     const result = await collection.insertOne(assessmentRecord);
 
