@@ -317,7 +317,10 @@ export function CybersecurityAssessmentForm() {
     
     // Automatically move to next question after a short delay
     setTimeout(() => {
-      if (currentQuestionIndex < filteredQuestions.length - 1) {
+      // Ensure we're checking the correct condition for the last question
+      const isLastQuestion = currentQuestionIndex === filteredQuestions.length - 1;
+      
+      if (!isLastQuestion) {
         setFormErrors([]);
         setCurrentQuestion(currentQuestion + 1);
       } else {
