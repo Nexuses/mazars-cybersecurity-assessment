@@ -1,12 +1,14 @@
 const { MongoClient } = require('mongodb');
 
 async function createUniqueIndex() {
-  if (!process.env.MONGODB_URI) {
+  const uri = process.env.MONGODB_URI || 'mongodb+srv://neeraj:forvis2025@cluster0.ggkwnt1.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
+  
+  if (!uri) {
     console.error('MONGODB_URI environment variable is not set');
     process.exit(1);
   }
 
-  const client = new MongoClient(process.env.MONGODB_URI);
+  const client = new MongoClient(uri);
   
   try {
     await client.connect();

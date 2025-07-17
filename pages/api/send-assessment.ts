@@ -1,7 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import nodemailer from 'nodemailer'
 import { questionsData } from '@/lib/questions';
-import clientPromise from '@/lib/mongodb';
 
 // Define the structure of the request body
 interface AssessmentData {
@@ -50,14 +49,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       const { 
       personalInfo, 
-      selectedCategories, 
-      selectedAreas, 
       answers, 
       score, 
-      totalQuestions, 
-      completedQuestions, 
-      assessmentMetadata, 
-      questionDetails, 
       language = 'en' 
     } = req.body as AssessmentData
     // const t = translations[language as keyof typeof translations];
@@ -187,46 +180,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       from: process.env.FROM_EMAIL
     });
     
-    // Store assessment data in MongoDB
-    try {
-      const client = await clientPromise;
-      const db = client.db();
-      const collection = db.collection('assessments');
-      
-      const assessmentRecord = {
-        personalInfo,
-        selectedCategories,
-        selectedAreas,
-        answers,
-        score,
-        totalQuestions,
-        completedQuestions,
-        assessmentMetadata,
-        questionDetails,
-        language,
-        detailedAnswers: Object.entries(answers).map(([questionId, answerValue]) => {
-          const question = currentQuestions.find((q) => q.id === questionId);
-          const answer = question?.options.find((opt) => opt.value === answerValue);
-          return {
-            questionId,
-            questionText: question?.text || 'Unknown question',
-            answerValue,
-            answerLabel: answer?.label || 'Unknown answer',
-            category: question?.category || 'Unknown',
-            area: question?.area || 'Unknown',
-            topic: question?.topic || 'Unknown'
-          };
-        }),
-        createdAt: new Date(),
-        updatedAt: new Date()
-      };
-
-      const result = await collection.insertOne(assessmentRecord);
-      console.log('Assessment stored in MongoDB with ID:', result.insertedId);
-    } catch (dbError) {
-      console.error('Error storing in MongoDB:', dbError);
-      // Continue with email sending even if MongoDB fails
-    }
+    // Note: Assessment data is already stored via /api/store-assessment endpoint
+    // This endpoint only handles email notifications
     
     // Send internal notification email
     await transporter.sendMail({

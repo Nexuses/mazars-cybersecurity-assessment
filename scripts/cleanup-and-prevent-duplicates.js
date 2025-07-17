@@ -1,6 +1,6 @@
 const { MongoClient } = require('mongodb');
 
-async function cleanupDuplicates() {
+async function cleanupAndPreventDuplicates() {
   const uri = process.env.MONGODB_URI || 'mongodb+srv://neeraj:forvis2025@cluster0.ggkwnt1.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
   
   if (!uri) {
@@ -12,12 +12,13 @@ async function cleanupDuplicates() {
   
   try {
     await client.connect();
-    console.log('Connected to MongoDB');
+    console.log('✅ Connected to MongoDB');
 
     const db = client.db();
     const collection = db.collection('assessments');
 
-    // Find all assessments
+    // Step 1: Clean up existing duplicates
+    console.log('\n🔍 Step 1: Finding and removing duplicate assessments...');
     const allAssessments = await collection.find({}).toArray();
     console.log(`Found ${allAssessments.length} total assessments`);
 
@@ -53,14 +54,48 @@ async function cleanupDuplicates() {
       }
     }
 
-    console.log(`Cleanup complete. Removed ${duplicatesRemoved} duplicate assessments.`);
+    console.log(`✅ Cleanup complete. Removed ${duplicatesRemoved} duplicate assessments.`);
+
+    // Step 2: Create unique indexes to prevent future duplicates
+    console.log('\n🔒 Step 2: Creating unique indexes to prevent future duplicates...');
+    
+    // Create a unique compound index on email and environmentUniqueName
+    await collection.createIndex(
+      {
+        'personalInfo.email': 1,
+        'personalInfo.environmentUniqueName': 1
+      },
+      {
+        unique: true,
+        name: 'email_environment_unique'
+      }
+    );
+    console.log('✅ Created unique index on email + environment');
+
+    // Also create an index on submissionId if it exists
+    try {
+      await collection.createIndex(
+        { 'submissionId': 1 },
+        {
+          unique: true,
+          sparse: true, // Only index documents that have submissionId field
+          name: 'submissionId_unique'
+        }
+      );
+      console.log('✅ Created unique index on submissionId');
+    } catch (error) {
+      console.log('ℹ️ SubmissionId index creation skipped (field may not exist yet)');
+    }
+
+    console.log('\n🎉 All done! Duplicate prevention is now active.');
+    console.log('📝 The system will now prevent duplicate submissions for the same email + environment combination.');
 
   } catch (error) {
-    console.error('Error cleaning up duplicates:', error);
+    console.error('❌ Error:', error);
   } finally {
     await client.close();
-    console.log('Disconnected from MongoDB');
+    console.log('✅ Disconnected from MongoDB');
   }
 }
 
-cleanupDuplicates().catch(console.error); 
+cleanupAndPreventDuplicates().catch(console.error); 

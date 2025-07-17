@@ -116,18 +116,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     console.log('Inserting enhanced assessment into MongoDB...');
     
-    // Check for potential duplicate submission (same email, environment, and recent timestamp)
-    const recentSubmission = await collection.findOne({
+    // Check for potential duplicate submission (same email and environment)
+    const existingSubmission = await collection.findOne({
       'personalInfo.email': personalInfo.email,
-      'personalInfo.environmentUniqueName': personalInfo.environmentUniqueName,
-      createdAt: { $gte: new Date(Date.now() - 60000) } // Within last minute
+      'personalInfo.environmentUniqueName': personalInfo.environmentUniqueName
     });
     
-    if (recentSubmission) {
-      console.log('Duplicate submission detected, skipping...');
+    if (existingSubmission) {
+      console.log('Duplicate submission detected for same email and environment, skipping...');
       return res.status(200).json({ 
-        message: 'Assessment already submitted',
-        assessmentId: recentSubmission._id,
+        message: 'Assessment already submitted for this environment',
+        assessmentId: existingSubmission._id,
         data: {
           score,
           totalQuestions,
