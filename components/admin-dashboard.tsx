@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Users, TrendingUp, Calendar, Globe, Eye, LogOut, Search, Filter, Download, RefreshCw } from "lucide-react";
+import { Users, TrendingUp, Calendar, Globe, Eye, LogOut, Search, Filter, Download, RefreshCw, Trash2 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { AssessmentDetailsModal } from './assessment-details-modal';
 
@@ -77,6 +77,29 @@ export function AdminDashboard() {
   const handleViewDetails = (assessment: Assessment) => {
     setSelectedAssessment(assessment);
     setIsModalOpen(true);
+  };
+
+  const handleDeleteAssessment = async (assessmentId: string) => {
+    if (!confirm('Are you sure you want to delete this assessment? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/delete-assessment?id=${assessmentId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        // Remove the assessment from the local state
+        setAssessments(prev => prev.filter(a => a._id !== assessmentId));
+      } else {
+        const errorData = await response.json();
+        alert(`Error deleting assessment: ${errorData.message}`);
+      }
+    } catch (error) {
+      console.error('Error deleting assessment:', error);
+      alert('Error deleting assessment. Please try again.');
+    }
   };
 
   const handleLogout = async () => {
@@ -321,15 +344,26 @@ export function AdminDashboard() {
                         </div>
                       </td>
                       <td className="p-4">
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          onClick={() => handleViewDetails(assessment)}
-                          className="text-[#3B3FA1] hover:bg-[#3B3FA1]/10"
-                        >
-                          <Eye className="h-4 w-4 mr-2" />
-                          View
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={() => handleViewDetails(assessment)}
+                            className="text-[#3B3FA1] hover:bg-[#3B3FA1]/10"
+                          >
+                            <Eye className="h-4 w-4 mr-2" />
+                            View
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={() => handleDeleteAssessment(assessment._id)}
+                            className="text-red-600 hover:bg-red-50 hover:text-red-700"
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Delete
+                          </Button>
+                        </div>
                       </td>
                     </tr>
                   ))}
