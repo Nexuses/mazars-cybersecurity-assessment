@@ -11,8 +11,6 @@ const nextConfig = {
   transpilePackages: ["framer-motion"],
   experimental: {
     serverComponentsExternalPackages: ['@react-pdf/renderer'],
-    // Disable trace to avoid permission issues
-    trace: false,
   },
   webpack: (config, { isServer }) => {
     if (isServer) {

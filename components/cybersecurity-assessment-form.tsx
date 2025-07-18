@@ -43,6 +43,7 @@ import {
 import { translations } from '@/lib/translations';
 import { questionsData, Question } from '@/lib/questions';
 import { AssessmentReport } from './assessment-report';
+import { CountryDropdown } from './ui/country-dropdown';
 
 // Add this custom hook
 function useWindowSize() {
@@ -696,7 +697,11 @@ export function CybersecurityAssessmentForm() {
                                     Please select your country:
                                   </FormLabel>
                                   <FormControl>
-                                    <Input {...field} className="border-gray-300 focus:border-[#3B3FA1] focus:ring-[#3B3FA1]" />
+                                    <CountryDropdown
+                                      value={field.value}
+                                      onChange={field.onChange}
+                                      placeholder="Select your country"
+                                    />
                                   </FormControl>
                                   <FormMessage />
                                 </FormItem>
