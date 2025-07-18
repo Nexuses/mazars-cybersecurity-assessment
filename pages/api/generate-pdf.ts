@@ -60,16 +60,16 @@ const createStyles = () => StyleSheet.create({
   page: {
     flexDirection: 'column',
     backgroundColor: '#ffffff',
-    padding: 25,
+    padding: 15,
     fontFamily: 'Helvetica',
-    fontSize: 10,
+    fontSize: 8,
   },
   // Header styles
   header: {
     backgroundColor: '#3B3FA1',
-    padding: 25,
-    marginBottom: 25,
-    borderRadius: 10,
+    padding: 15,
+    marginBottom: 15,
+    borderRadius: 8,
   },
   headerContent: {
     flexDirection: 'row',
@@ -81,101 +81,101 @@ const createStyles = () => StyleSheet.create({
     alignItems: 'center',
   },
   logo: {
-    width: 60,
-    height: 40,
-    marginRight: 15,
+    width: 45,
+    height: 30,
+    marginRight: 10,
   },
   headerText: {
     color: '#ffffff',
   },
   headerTitle: {
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: 'bold',
     color: '#ffffff',
-    marginBottom: 5,
+    marginBottom: 3,
   },
   headerSubtitle: {
-    fontSize: 12,
+    fontSize: 10,
     color: '#E0E7FF',
   },
   // Card styles
   card: {
     borderWidth: 1,
     borderColor: '#E5E7EB',
-    borderRadius: 10,
-    marginBottom: 25,
+    borderRadius: 8,
+    marginBottom: 15,
     backgroundColor: '#ffffff',
   },
   cardHeader: {
     backgroundColor: '#F9FAFB',
-    padding: 18,
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
+    padding: 12,
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
     borderBottomWidth: 1,
     borderBottomColor: '#E5E7EB',
   },
   cardTitle: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: 'bold',
     color: '#3B3FA1',
   },
   cardContent: {
-    padding: 25,
+    padding: 15,
   },
   // Grid styles
   grid: {
     flexDirection: 'row',
-    marginBottom: 20,
+    marginBottom: 12,
   },
   gridCol: {
     flex: 1,
-    marginHorizontal: 8,
+    marginHorizontal: 6,
   },
   metricBox: {
     backgroundColor: '#EFF6FF',
-    padding: 15,
-    borderRadius: 8,
+    padding: 10,
+    borderRadius: 6,
     alignItems: 'center',
   },
   metricValue: {
-    fontSize: 24,
+    fontSize: 18,
     fontWeight: 'bold',
     color: '#3B3FA1',
-    marginBottom: 5,
+    marginBottom: 3,
   },
   metricLabel: {
-    fontSize: 10,
+    fontSize: 8,
     color: '#6B7280',
   },
   // Progress bar styles
   progressContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 15,
+    marginBottom: 10,
     width: '100%',
   },
   progressLabel: {
-    width: 140,
-    fontSize: 10,
+    width: 120,
+    fontSize: 8,
     color: '#6B7280',
     flexShrink: 0,
   },
   progressBar: {
     flex: 1,
-    height: 16,
+    height: 12,
     backgroundColor: '#E5E7EB',
-    borderRadius: 8,
-    marginHorizontal: 15,
-    minWidth: 120,
+    borderRadius: 6,
+    marginHorizontal: 10,
+    minWidth: 100,
   },
   progressFill: {
-    height: 16,
+    height: 12,
     backgroundColor: '#3B3FA1',
-    borderRadius: 8,
+    borderRadius: 6,
   },
   progressText: {
-    width: 80,
-    fontSize: 10,
+    width: 70,
+    fontSize: 8,
     color: '#6B7280',
     textAlign: 'right',
     flexShrink: 0,
@@ -184,7 +184,7 @@ const createStyles = () => StyleSheet.create({
   table: {
     borderWidth: 1,
     borderColor: '#E5E7EB',
-    borderRadius: 8,
+    borderRadius: 6,
   },
   tableHeader: {
     backgroundColor: '#F9FAFB',
@@ -198,8 +198,8 @@ const createStyles = () => StyleSheet.create({
     borderBottomColor: '#F3F4F6',
   },
   tableCell: {
-    padding: 12,
-    fontSize: 9,
+    padding: 8,
+    fontSize: 7,
     flex: 1,
   },
   tableCellHeader: {
@@ -210,24 +210,24 @@ const createStyles = () => StyleSheet.create({
     backgroundColor: '#E0E7FF',
     fontWeight: 'bold',
     color: '#374151',
-    padding: 12,
+    padding: 8,
   },
   categoryCode: {
     fontWeight: 'bold',
-    fontSize: 11,
+    fontSize: 9,
     color: '#000000',
   },
   categoryName: {
-    fontSize: 9,
+    fontSize: 7,
     color: '#374151',
-    marginTop: 3,
+    marginTop: 2,
     lineHeight: 1.2,
   },
   percentageBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 4,
-    fontSize: 8,
+    paddingHorizontal: 6,
+    paddingVertical: 3,
+    borderRadius: 3,
+    fontSize: 7,
     fontWeight: 'bold',
     textAlign: 'center',
   },
@@ -279,26 +279,26 @@ const createStyles = () => StyleSheet.create({
   },
   // Text styles
   sectionTitle: {
-    fontSize: 12,
+    fontSize: 10,
     fontWeight: 'bold',
     color: '#374151',
-    marginBottom: 15,
+    marginBottom: 10,
   },
   label: {
-    fontSize: 10,
+    fontSize: 8,
     fontWeight: 'bold',
     color: '#6B7280',
-    marginBottom: 8,
+    marginBottom: 5,
   },
   value: {
-    fontSize: 10,
+    fontSize: 8,
     color: '#374151',
     backgroundColor: '#F9FAFB',
-    padding: 10,
+    padding: 8,
     borderRadius: 4,
     borderWidth: 1,
     borderColor: '#E5E7EB',
-    marginBottom: 12,
+    marginBottom: 8,
   },
 });
 
@@ -376,13 +376,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             React.createElement(View, { style: styles.gridCol },
               React.createElement(Text, { style: styles.label }, "Name:"),
               React.createElement(Text, { style: styles.value }, personalInfo.name),
-              React.createElement(Text, { style: { ...styles.label, marginTop: 15 } }, "Environment Name:"),
+              React.createElement(Text, { style: { ...styles.label, marginTop: 10 } }, "Environment Name:"),
               React.createElement(Text, { style: styles.value }, personalInfo.environmentUniqueName || 'N/A')
             ),
             React.createElement(View, { style: styles.gridCol },
               React.createElement(Text, { style: styles.label }, "Date:"),
               React.createElement(Text, { style: styles.value }, new Date().toLocaleDateString()),
-              React.createElement(Text, { style: { ...styles.label, marginTop: 15 } }, "Questions Answered:"),
+              React.createElement(Text, { style: { ...styles.label, marginTop: 10 } }, "Questions Answered:"),
               React.createElement(Text, { style: styles.value }, `${totalAnswered} / 149`)
             )
           )
@@ -418,7 +418,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           ),
           // Response type distribution
           React.createElement(Text, { style: styles.sectionTitle }, "Response Type Distribution"),
-          React.createElement(View, { style: { marginBottom: 10 } }),
+          React.createElement(View, { style: { marginBottom: 8 } }),
           React.createElement(View, { style: { width: '100%', paddingHorizontal: 5 } },
             ...responseTypeSummary.map((response, index) => {
               const maxPercentage = Math.max(...responseTypeSummary.map(r => r.percentage));
@@ -458,7 +458,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 React.createElement(View, { style: [styles.tableCell, styles.tableCellCategory] },
                   React.createElement(View, { style: { flexDirection: 'row', alignItems: 'center', marginBottom: 2 } },
                     React.createElement(Text, { style: styles.categoryCode }, category.categoryCode),
-                    React.createElement(Text, { style: { marginLeft: 8, fontSize: 10, color: '#000000', fontWeight: 'bold' } }, category.category)
+                    React.createElement(Text, { style: { marginLeft: 6, fontSize: 8, color: '#000000', fontWeight: 'bold' } }, category.category)
                   )
                 ),
                 ...responseTypeSummary.map((type, typeIndex) => {
