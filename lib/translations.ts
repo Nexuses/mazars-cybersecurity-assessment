@@ -11,6 +11,7 @@ export const translations = {
     back: "Back",
     finish: "Finish",
     downloadReport: "Download Report",
+    viewComprehensiveReport: "View Comprehensive Report",
     bookAppointment: "Book Appointment",
     assessmentResults: "Assessment Results",
     thankYou: {

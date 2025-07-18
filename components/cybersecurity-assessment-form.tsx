@@ -22,7 +22,6 @@ import {
   ChevronDown,
   ChevronRight,
   ChevronUp,
-  Download,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
@@ -1144,52 +1143,7 @@ export function CybersecurityAssessmentForm() {
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                             </svg>
                             <span className="text-sm font-semibold whitespace-nowrap">
-                              View Report
-                            </span>
-                          </button>
-                        </div>
-                        <div className="w-full sm:w-56">
-                          <button
-                            onClick={() => {
-                              // Generate and download PDF report
-                              const assessmentData = {
-                                personalInfo,
-                                selectedCategories,
-                                selectedAreas,
-                                answers,
-                                score,
-                                language: currentLanguage,
-                              };
-                              
-                              fetch('/api/generate-pdf', {
-                                method: 'POST',
-                                headers: {
-                                  'Content-Type': 'application/json',
-                                },
-                                body: JSON.stringify(assessmentData),
-                              })
-                              .then(response => response.blob())
-                              .then(blob => {
-                                const url = window.URL.createObjectURL(blob);
-                                const a = document.createElement('a');
-                                a.href = url;
-                                a.download = `cybersecurity-assessment-${personalInfo.name}-${new Date().toISOString().split('T')[0]}.pdf`;
-                                document.body.appendChild(a);
-                                a.click();
-                                window.URL.revokeObjectURL(url);
-                                document.body.removeChild(a);
-                              })
-                              .catch(error => {
-                                console.error('Error downloading report:', error);
-                                alert('There was an issue downloading the report. Please try again.');
-                              });
-                            }}
-                            type="button"
-                            className="w-full flex items-center justify-center space-x-2 p-3 border border-gray-300 rounded-lg bg-[#3B3FA1] text-white hover:bg-[#2A2D8A] transition-all duration-300 ease-in-out transform hover:scale-105 shadow-md"
-                          >
-                            <Download className="w-5 h-5" />
-                            <span className="text-sm font-semibold whitespace-nowrap">
-                              Download Report
+                              {t.viewComprehensiveReport}
                             </span>
                           </button>
                         </div>
