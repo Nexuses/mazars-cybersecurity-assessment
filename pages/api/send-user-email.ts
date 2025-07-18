@@ -254,6 +254,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       from: process.env.FROM_EMAIL
     });
     
+    // Check if SMTP is configured
+    if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
+      console.warn("SMTP not configured, skipping user email sending");
+      return res.status(200).json({ 
+        message: 'Assessment stored successfully (user email skipped - SMTP not configured)',
+        skipped: true
+      });
+    }
+    
     // Send email to the user using their provided email address
     const userEmail = personalInfo.email || process.env.USER_EMAIL || "alexander.b@skilloncall.com";
     
@@ -268,8 +277,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     res.status(200).json({ message: 'User email sent successfully' })
   } catch (error) {
     console.error('Error sending user email:', error)
-    res.status(500).json({ 
-      message: 'Failed to send user email',
+    res.status(200).json({ 
+      message: 'Assessment stored successfully (email failed but data saved)',
       error: error instanceof Error ? error.message : 'Unknown error',
       details: process.env.NODE_ENV === 'development' ? error : undefined
     })

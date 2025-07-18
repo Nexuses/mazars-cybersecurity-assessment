@@ -432,39 +432,45 @@ export function CybersecurityAssessmentForm() {
       console.log("Assessment data stored successfully");
 
       // Send internal notification
-      const response = await fetch("/api/send-assessment", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(assessmentData),
-      });
+      try {
+        const response = await fetch("/api/send-assessment", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(assessmentData),
+        });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error("Internal email error:", errorData);
-        // Don't throw error here, as data is already stored
-        console.warn("Failed to send internal email, but assessment data was stored");
-      } else {
-        console.log("Internal email sent successfully");
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error("Internal email error:", errorData);
+          console.warn("Failed to send internal email, but assessment data was stored");
+        } else {
+          console.log("Internal email sent successfully");
+        }
+      } catch (emailError) {
+        console.warn("Email sending failed, but assessment data was stored:", emailError);
       }
 
       // Send user email notification
-      const userEmailResponse = await fetch("/api/send-user-email", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(assessmentData),
-      });
+      try {
+        const userEmailResponse = await fetch("/api/send-user-email", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(assessmentData),
+        });
 
-      if (!userEmailResponse.ok) {
-        const errorData = await userEmailResponse.json();
-        console.error("User email error:", errorData);
-        // Don't throw error here, as data is already stored
-        console.warn("Failed to send user email, but assessment data was stored");
-      } else {
-        console.log("User email sent successfully to:", personalInfo.email);
+        if (!userEmailResponse.ok) {
+          const errorData = await userEmailResponse.json();
+          console.error("User email error:", errorData);
+          console.warn("Failed to send user email, but assessment data was stored");
+        } else {
+          console.log("User email sent successfully to:", personalInfo.email);
+        }
+      } catch (emailError) {
+        console.warn("User email sending failed, but assessment data was stored:", emailError);
       }
     } catch (error) {
       console.error("Error processing assessment results:", error);

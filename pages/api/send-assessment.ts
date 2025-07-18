@@ -180,6 +180,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       from: process.env.FROM_EMAIL
     });
     
+    // Check if SMTP is configured
+    if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
+      console.warn("SMTP not configured, skipping email sending");
+      return res.status(200).json({ 
+        message: 'Assessment stored successfully (email skipped - SMTP not configured)',
+        skipped: true
+      });
+    }
+    
     // Note: Assessment data is already stored via /api/store-assessment endpoint
     // This endpoint only handles email notifications
     
