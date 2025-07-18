@@ -1,7 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { MongoClient } from 'mongodb';
 import clientPromise from '@/lib/mongodb';
-import { questionsData } from '@/lib/questions';
 
 // Define the enhanced structure of the request body
 interface AssessmentData {
@@ -68,7 +67,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       language = 'en' 
     } = req.body as AssessmentData;
     
-    const currentQuestions = questionsData[language as keyof typeof questionsData];
+
 
     console.log('Attempting to connect to MongoDB...');
     // Get database connection with timeout
@@ -95,17 +94,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       questionDetails,
       language,
       // Add detailed question and answer mapping with enhanced information
-      detailedAnswers: Object.entries(answers).map(([questionId, answerValue]) => {
-        const question = currentQuestions.find((q) => q.id === questionId);
-        const answer = question?.options.find((opt) => opt.value === answerValue);
+      detailedAnswers: questionDetails.map((questionDetail) => {
+        const answerValue = answers[questionDetail.id];
+        const answer = questionDetail.options.find((opt) => opt.value === answerValue);
         return {
-          questionId,
-          questionText: question?.text || 'Unknown question',
-          answerValue,
-          answerLabel: answer?.label || 'Unknown answer',
-          category: question?.category || 'Unknown',
-          area: question?.area || 'Unknown',
-          topic: question?.topic || 'Unknown'
+          questionId: questionDetail.id,
+          questionText: questionDetail.text,
+          answerValue: answerValue || null,
+          answerLabel: answer?.label || 'Not answered',
+          category: questionDetail.category,
+          area: questionDetail.area,
+          topic: questionDetail.topic
         };
       }),
       // Add a unique submission identifier to prevent duplicates

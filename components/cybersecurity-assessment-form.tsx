@@ -879,7 +879,7 @@ export function CybersecurityAssessmentForm() {
                           <div className="flex justify-between items-center">
                             <div className="text-sm text-gray-600">
                               Selected: {selectedAreas.length} area{selectedAreas.length !== 1 ? 's' : ''} 
-                              ({filteredQuestions.length} total questions)
+                              ({filteredQuestions.length} available questions)
                             </div>
                             <div className="flex gap-3">
                               <Button
@@ -1164,13 +1164,13 @@ export function CybersecurityAssessmentForm() {
                 <div className="relative w-full h-3 bg-gray-200 rounded-full overflow-hidden">
                   <motion.div
                     className="absolute top-0 left-0 h-full bg-[#3B3FA1]"
-                    style={{ width: `${((currentQuestion - 1) / (filteredQuestions.length + 1)) * 100}%` }}
+                    style={{ width: `${((currentQuestion - 1) / filteredQuestions.length) * 100}%` }}
                     initial={{ width: 0 }}
-                    animate={{ width: `${((currentQuestion - 1) / (filteredQuestions.length + 1)) * 100}%` }}
+                    animate={{ width: `${((currentQuestion - 1) / filteredQuestions.length) * 100}%` }}
                     transition={{ duration: 0.5 }}
                   />
                   <div className="absolute top-0 left-0 w-full h-full flex justify-between items-center px-1">
-                    {Array.from({ length: filteredQuestions.length + 1 }).map(
+                    {Array.from({ length: filteredQuestions.length }).map(
                       (_, index) => (
                         <motion.div
                           key={index}

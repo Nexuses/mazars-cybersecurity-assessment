@@ -404,9 +404,6 @@ export function AdminDashboard() {
                         <div className="text-sm text-gray-900">
                           {new Date(assessment.personalInfo.date).toLocaleDateString()}
                         </div>
-                        <div className="text-xs text-gray-500">
-                          {new Date(assessment.personalInfo.date).toLocaleTimeString()}
-                        </div>
                       </td>
                       <td className="p-4">
                         <div className="flex gap-2">
