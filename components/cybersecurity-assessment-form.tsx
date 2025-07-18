@@ -888,7 +888,7 @@ export function CybersecurityAssessmentForm() {
                         )}
                         <div className="mt-6 pt-4 border-t border-gray-200">
                           <div className="flex justify-between items-center">
-                            <div className="text-sm text-gray-600">
+                            <div className="text-sm font-semibold text-[#3B3FA1] bg-blue-50 px-3 py-2 rounded-lg border border-blue-200">
                               Selected: {selectedAreas.length} area{selectedAreas.length !== 1 ? 's' : ''} 
                               ({filteredQuestions.length} available questions)
                             </div>
