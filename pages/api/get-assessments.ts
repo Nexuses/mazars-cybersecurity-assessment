@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import clientPromise, { COLLECTIONS } from '@/lib/mongodb';
+import { getMongoClient, COLLECTIONS } from '@/lib/mongodb';
 import { Filter } from 'mongodb';
 
 interface Assessment {
@@ -20,7 +20,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     const { limit = 10, skip = 0, email = '', environmentName = '', dateFrom = '', dateTo = '' } = req.query;
 
-    const client = await clientPromise;
+    const client = await getMongoClient();
     const db = client.db();
     const collection = db.collection<Assessment>(COLLECTIONS.ASSESSMENTS);
 

@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import clientPromise, { COLLECTIONS } from '@/lib/mongodb';
+import { getMongoClient, COLLECTIONS } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -14,7 +14,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ message: 'Assessment ID is required' });
     }
 
-    const client = await clientPromise;
+    const client = await getMongoClient();
     const db = client.db();
     const collection = db.collection(COLLECTIONS.ASSESSMENTS);
 

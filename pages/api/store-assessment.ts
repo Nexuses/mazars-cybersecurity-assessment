@@ -1,6 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { MongoClient } from 'mongodb';
-import clientPromise from '@/lib/mongodb';
+import { getMongoClient } from '@/lib/mongodb';
 
 // Define the enhanced structure of the request body
 interface AssessmentData {
@@ -70,13 +69,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
 
     console.log('Attempting to connect to MongoDB...');
-    // Get database connection with timeout
-    const client = await Promise.race([
-      clientPromise,
-      new Promise<never>((_, reject) => 
-        setTimeout(() => reject(new Error('MongoDB connection timeout')), 10000)
-      )
-    ]) as MongoClient;
+    // Get database connection with retry logic
+    const client = await getMongoClient();
     const db = client.db();
     const collection = db.collection('assessments');
 

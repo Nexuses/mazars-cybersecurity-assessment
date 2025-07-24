@@ -1,7 +1,7 @@
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
-import clientPromise, { COLLECTIONS } from '@/lib/mongodb';
+import { getMongoClient, COLLECTIONS } from '@/lib/mongodb';
 
 interface ExtendedUser {
   id?: string;
@@ -23,7 +23,7 @@ export default NextAuth({
           throw new Error('Please enter email and password');
         }
 
-        const client = await clientPromise;
+        const client = await getMongoClient();
         const adminUsers = client.db().collection(COLLECTIONS.ADMIN_USERS);
 
         const user = await adminUsers.findOne({ email: credentials.email });

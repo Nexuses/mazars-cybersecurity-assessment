@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import bcrypt from 'bcryptjs';
-import clientPromise, { COLLECTIONS } from '@/lib/mongodb';
+import { getMongoClient, COLLECTIONS } from '@/lib/mongodb';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -14,7 +14,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ message: 'Missing required fields' });
     }
 
-    const client = await clientPromise;
+    const client = await getMongoClient();
     const adminUsers = client.db().collection(COLLECTIONS.ADMIN_USERS);
 
     // Check if admin user already exists
