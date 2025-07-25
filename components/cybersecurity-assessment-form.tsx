@@ -44,6 +44,12 @@ import { translations } from '@/lib/translations';
 import { questionsData, Question } from '@/lib/questions';
 import { AssessmentReport } from './assessment-report';
 import { CountryDropdown } from './ui/country-dropdown';
+import { RoleDropdown } from './ui/role-dropdown';
+import { EnvironmentDropdown } from './ui/environment-dropdown';
+import { EnvironmentSizeDropdown } from './ui/environment-size-dropdown';
+import { EnvironmentImportanceDropdown } from './ui/environment-importance-dropdown';
+import { EnvironmentMaturityDropdown } from './ui/environment-maturity-dropdown';
+import { MarketSectorDropdown } from './ui/market-sector-dropdown';
 
 // Add this custom hook
 function useWindowSize() {
@@ -592,7 +598,11 @@ export function CybersecurityAssessmentForm() {
                                       Please select your role or job title:
                                     </FormLabel>
                                     <FormControl>
-                                      <Input {...field} className="border-gray-300 focus:border-[#3B3FA1] focus:ring-[#3B3FA1]" />
+                                      <RoleDropdown
+                                        value={field.value}
+                                        onChange={field.onChange}
+                                        placeholder="Please select an option"
+                                      />
                                     </FormControl>
                                     <FormMessage />
                                   </FormItem>
@@ -607,7 +617,11 @@ export function CybersecurityAssessmentForm() {
                                       What type of environment are you assessing?
                                     </FormLabel>
                                     <FormControl>
-                                      <Input {...field} className="border-gray-300 focus:border-[#3B3FA1] focus:ring-[#3B3FA1]" />
+                                      <EnvironmentDropdown
+                                        value={field.value}
+                                        onChange={field.onChange}
+                                        placeholder="Please select an option"
+                                      />
                                     </FormControl>
                                     <FormMessage />
                                   </FormItem>
@@ -622,7 +636,11 @@ export function CybersecurityAssessmentForm() {
                                       What is the size of the environment covered by this questionnaire?
                                     </FormLabel>
                                     <FormControl>
-                                      <Input {...field} className="border-gray-300 focus:border-[#3B3FA1] focus:ring-[#3B3FA1]" />
+                                      <EnvironmentSizeDropdown
+                                        value={field.value}
+                                        onChange={field.onChange}
+                                        placeholder="Please select an option"
+                                      />
                                     </FormControl>
                                     <FormMessage />
                                   </FormItem>
@@ -637,7 +655,11 @@ export function CybersecurityAssessmentForm() {
                                       What is the overall importance of the environment to the organisation?
                                     </FormLabel>
                                     <FormControl>
-                                      <Input {...field} className="border-gray-300 focus:border-[#3B3FA1] focus:ring-[#3B3FA1]" />
+                                      <EnvironmentImportanceDropdown
+                                        value={field.value}
+                                        onChange={field.onChange}
+                                        placeholder="Please select an option"
+                                      />
                                     </FormControl>
                                     <FormMessage />
                                   </FormItem>
@@ -652,7 +674,11 @@ export function CybersecurityAssessmentForm() {
                                       What is the overall maturity of the environment in relation to information security?
                                     </FormLabel>
                                     <FormControl>
-                                      <Input {...field} className="border-gray-300 focus:border-[#3B3FA1] focus:ring-[#3B3FA1]" />
+                                      <EnvironmentMaturityDropdown
+                                        value={field.value}
+                                        onChange={field.onChange}
+                                        placeholder="Please select an option"
+                                      />
                                     </FormControl>
                                     <FormMessage />
                                   </FormItem>
@@ -682,7 +708,11 @@ export function CybersecurityAssessmentForm() {
                                     What market sector best applies to this environment?
                                   </FormLabel>
                                   <FormControl>
-                                    <Input {...field} className="border-gray-300 focus:border-[#3B3FA1] focus:ring-[#3B3FA1]" />
+                                    <MarketSectorDropdown
+                                      value={field.value}
+                                      onChange={field.onChange}
+                                      placeholder="Please select an option"
+                                    />
                                   </FormControl>
                                   <FormMessage />
                                 </FormItem>
